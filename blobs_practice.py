@@ -2,8 +2,9 @@ import porespy as ps
 import matplotlib.pyplot as plt
 import numpy as np
 import openpnm as op
+import random
 
-# im = ps.generators.blobs(shape=[200,200,200], porosity = 0.4, blobiness=0.5)
+# im = ps.generators.blobs(shape=[200,200,200], porosity = 0.4, blobiness=0.4)
 # fig, ax = plt.subplots(figsize=[10, 10])
 # ax.imshow(ps.visualization.show_3D(im), interpolation='none')
 # ax.axis(False);
@@ -13,11 +14,16 @@ pore_radius = 12  # Change this value to control pore size
 
 # Generate 3D image with tunable pore size
 im = ps.generators.overlapping_spheres(
-    shape=[200, 200, 200],
+    shape=[random.randint(1,200), random.randint(1,200), random.randint(1,200)],
     r=pore_radius,
     porosity=0.2,
     maxiter=0
 )
+
+# Visualize the generated image (3D)
+fig, ax = plt.subplots(figsize=[10, 10])
+ax.imshow(ps.visualization.show_3D(im), interpolation='none')
+ax.axis(False)
 
 # Calculate porosity (in percent)
 porosity = ps.metrics.porosity(im)
@@ -28,24 +34,11 @@ tortuosity = ps.simulations.tortuosity_fd(im, axis=0)
 #print(f"Tortuosity (x-direction): {tortuosity:.3f}")
 print(tortuosity)
 
-# Visualize the generated image (3D)
-fig, ax = plt.subplots(figsize=[10, 10])
-ax.imshow(ps.visualization.show_3D(im), interpolation='none')
-ax.axis(False)
-
 # --- 2D visualization of the first layer ---
 plt.figure(figsize=(6, 6))
 plt.imshow(im[:, :, 0], cmap='gray', interpolation='none')
 plt.title('First Layer (z=0)')
 plt.axis('off')
-
-# --- Pore size distribution ---
-pore_sizes = ps.metrics.pore_size_distribution(im, bins=30, log=False)
-plt.figure()
-plt.bar(pore_sizes.bin_centers, pore_sizes.pdf, width=pore_sizes.bin_widths)
-plt.xlabel('Pore diameter (voxels)')
-plt.ylabel('Probability Density')
-plt.title('Pore Size Distribution')
 
 # --- Throat size distribution (network extraction required) ---
 net = ps.networks.snow2(im, boundary_width=0).network
@@ -66,6 +59,15 @@ print(f"Mean pore volume: {np.mean(pore_volumes):.2f} voxels³")
 print(f"Mean throat volume: {np.mean(throat_volumes):.2f} voxels³")
 print(f"Total pore volume: {np.sum(pore_volumes):.2f} voxels³")
 print(f"Total throat volume: {np.sum(throat_volumes):.2f} voxels³")
+
+# Pore diameter histogram
+plt.figure()
+plt.hist(pn['pore.diameter'], bins=30)
+plt.xlabel('Pore diameter (voxels)')
+plt.ylabel('Count')
+plt.title('Pore Size Distribution')
+
+plt.show()
 
 # Throat diameter histogram
 plt.figure()
