@@ -14,7 +14,7 @@ pore_radius = 12  # Change this value to control pore size
 
 # Generate 3D image with tunable pore size
 im = ps.generators.overlapping_spheres(
-    shape=[random.randint(1,200), random.randint(1,200), random.randint(1,200)],
+    shape=[200, 200, 200],
     r=pore_radius,
     porosity=0.2,
     maxiter=0
